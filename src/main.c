@@ -103,26 +103,30 @@ void *game_loop(void *args) {
     gettimeofday(&tv, NULL);
     long long last_update = tv.tv_sec * 1000000LL + tv.tv_usec;
     long long now = last_update;
-    // int prev_skip = 0;
+    long long delta = 0;
 
     while(1) {
+        
+
         // MAIN LOOP START
         printf("main loop\n");
         usleep(1500000);
 
         // MAIN LOOP END
 
+
+        // time delay for consisten fps
         gettimeofday(&tv, NULL);
         now = tv.tv_sec * 1000000LL + tv.tv_usec;
 
-        long long delta = now - last_update;
-        long long left = LOOP_DELAY - delta;
+        long long i_delta = now - last_update;
+        long long i_left = LOOP_DELAY - i_delta;
 
         last_update = now;
 
-        printf("sleeping for %d\n", left);
-        if (left > 0) {
-            usleep(left);
+        printf("sleeping for %d\n", i_left);
+        if (i_left > 0) {
+            usleep(i_left);
         }
 
         gettimeofday(&tv, NULL);
