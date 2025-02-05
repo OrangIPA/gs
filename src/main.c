@@ -22,7 +22,8 @@ int main() {
 
     pthread_t loop_thread;
     if (pthread_create(&loop_thread, NULL, game_loop, NULL) < 0) {
-
+        perror("gameloop");
+        return 1;
     }
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
