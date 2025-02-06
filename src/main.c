@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <time.h>
+#include <stdint.h>
 
 #define PORT 4000
 #define LOOP_DELAY 1000000LL
@@ -82,16 +83,55 @@ void *handle_client(void *socket_desc) {
     int client_sock = *(int*)socket_desc;
     char buffer[1024] = {0};
     free(socket_desc);
+    printf("new connection!\n");
 
     while (1)
-    {
-        sleep(1);
-        char resp[] = "halo\n";
-        ssize_t bytes_written = write(client_sock, resp, sizeof(resp));
-        if (bytes_written < 0) {
-            perror("webserver (write)");
+    {        
+        uint8_t message_length;
+        int valread = read(client_sock, &message_length, 1);
+        if (valread < 0) {
+            perror("what?");
             continue;
         }
+        uint8_t* message = malloc(message_length);
+        printf("buf_length: %d\n", message_length);
+
+        int totalread = 0;
+        int err = 0;
+        while (1) {
+            uint8_t buf;
+            int valread = read(client_sock, &buf, 1);
+            if (valread == 0) 
+                continue;
+            message[totalread] = buf;
+
+            totalread += valread;
+            if (totalread > (int)message_length) {
+                err = 1;
+                break;
+            }
+            if (totalread == (int)message_length) 
+                break;
+        }
+
+        if (err) {
+            perror("tcp read error");
+            break;
+        }
+
+        char* reply = malloc(message_length * 2 + 1);
+        for (int i = 0; i < message_length; i++) {
+            sprintf((reply + i*2),"%02X", (int)message[i]);
+        }
+        reply[message_length * 2] = '\0';
+        ssize_t bytes_written = write(client_sock, reply, message_length * 2 + 1);
+        if (bytes_written < 0) {
+            perror("webserver (write)");
+        }
+
+clean_up:
+        free(message);
+        free(reply);
     }
 
     shutdown(client_sock, SHUT_RDWR);
@@ -110,7 +150,7 @@ void *game_loop(void *args) {
         
 
         // MAIN LOOP START
-        printf("main loop\n");
+        // printf("main loop\n");
         usleep(1500000);
 
         // MAIN LOOP END
@@ -125,7 +165,7 @@ void *game_loop(void *args) {
 
         last_update = now;
 
-        printf("sleeping for %d\n", i_left);
+        // printf("sleeping for %d\n", i_left);
         if (i_left > 0) {
             usleep(i_left);
         }
