@@ -89,6 +89,10 @@ void *handle_client(void *socket_desc) {
     {        
         uint8_t message_length;
         int valread = read(client_sock, &message_length, 1);
+        if (valread == 0) {
+            printf("disconnect!\n");
+            break;
+        }
         if (valread < 0) {
             perror("what?");
             continue;
@@ -129,11 +133,11 @@ void *handle_client(void *socket_desc) {
             perror("webserver (write)");
         }
 
-clean_up:
         free(message);
         free(reply);
     }
 
+    printf("close connection");
     shutdown(client_sock, SHUT_RDWR);
     close(client_sock);
 }
