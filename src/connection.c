@@ -7,15 +7,15 @@
 #include <sys/socket.h>
 
 void *handle_client(void *socket_desc) {
-    int client_sock = *(int*)socket_desc;
-    char buffer[1024] = {0};
+    int  client_sock  = *(int *)socket_desc;
+    char buffer[1024] = { 0 };
+
     free(socket_desc);
     printf("new connection!\n");
 
-    while (1)
-    {
+    while (1) {
         uint8_t message_length;
-        int valread = read(client_sock, &message_length, 1);
+        int     valread = read(client_sock, &message_length, 1);
         if (valread == 0) {
             printf("disconnect!\n");
             break;
@@ -24,16 +24,17 @@ void *handle_client(void *socket_desc) {
             perror("what?");
             continue;
         }
-        uint8_t* message = malloc(message_length);
+        uint8_t *message = malloc(message_length);
         printf("buf_length: %d\n", message_length);
 
         int totalread = 0;
-        int err = 0;
+        int err       = 0;
         while (1) {
             uint8_t buf;
-            int valread = read(client_sock, &buf, 1);
-            if (valread == 0) 
+            int     valread = read(client_sock, &buf, 1);
+            if (valread == 0) {
                 continue;
+            }
             message[totalread] = buf;
 
             totalread += valread;
@@ -41,8 +42,9 @@ void *handle_client(void *socket_desc) {
                 err = 1;
                 break;
             }
-            if (totalread == (int)message_length) 
+            if (totalread == (int)message_length) {
                 break;
+            }
         }
 
         if (err) {
@@ -50,9 +52,9 @@ void *handle_client(void *socket_desc) {
             break;
         }
 
-        char* reply = malloc(message_length * 2 + 1);
+        char *reply = malloc(message_length * 2 + 1);
         for (int i = 0; i < message_length; i++) {
-            sprintf((reply + i*2),"%02X", (int)message[i]);
+            sprintf((reply + i * 2), "%02X", (int)message[i]);
         }
         reply[message_length * 2] = '\0';
         ssize_t bytes_written = write(client_sock, reply, message_length * 2 + 1);
@@ -68,5 +70,5 @@ void *handle_client(void *socket_desc) {
     shutdown(client_sock, SHUT_RDWR);
     close(client_sock);
 
-    return (void*)0;
+    return((void *)0);
 }
