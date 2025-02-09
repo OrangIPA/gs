@@ -11,6 +11,7 @@
 #include <time.h>
 
 #include "connection.h"
+#include "state.h"
 
 #define PORT          4000
 #define LOOP_DELAY    1000000LL
@@ -19,6 +20,8 @@ void *game_loop(void *args);
 
 int main() {
     signal(SIGPIPE, SIG_IGN);
+
+    State state = create_state();
 
     pthread_t loop_thread;
     if (pthread_create(&loop_thread, NULL, game_loop, NULL) < 0) {
