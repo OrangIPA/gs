@@ -2,9 +2,12 @@
 #define STATE_H
 
 #include <pthread.h>
-#include <stdio.h>
 
-typedef struct Player;
+typedef struct player {
+    int   fd;
+    float pos[2];
+    float vel[2];
+} Player;
 
 typedef struct state {
     int              p_count;
@@ -14,10 +17,6 @@ typedef struct state {
     pthread_rwlock_t lock;
 } State;
 
-typedef struct player {
-    int   pfd;
-    float ppos[2];
-} Player;
 
 State create_state();
 
