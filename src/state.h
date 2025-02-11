@@ -19,6 +19,7 @@ typedef struct state {
 
 
 State create_state();
+void print_state(State *state);
 
 void state_newplayer(State *state, int sockfd);
 int state_deleteplayer(State *state, int sockfd);

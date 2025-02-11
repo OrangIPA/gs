@@ -15,7 +15,7 @@
 #include "update.h"
 
 #define PORT          4000
-#define LOOP_DELAY    1000000LL
+#define LOOP_DELAY    40000LL
 
 void *game_loop(void *args);
 

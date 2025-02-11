@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <pthread.h>
+#include <stdio.h>
 
 State create_state() {
     State state;
@@ -16,6 +17,18 @@ State create_state() {
     pthread_rwlock_init(&state.lock, &attr);
 
     return state;
+}
+
+void print_state(State *state) {
+    pthread_rwlock_rdlock(&state->lock);
+    printf("player count: %d\n", state->p_count);
+    printf("player capacity: %d\n", state->p_cap);
+    for (int i = 0; i < state->p_count; i++) {
+        Player *p = &state->players[i];
+        printf("sockfd %d [pos: %f, %f] [vel: %f, %f]", p->fd, p->pos[0], p->pos[1], p->vel[0], p->vel[1]);
+    }
+
+    pthread_rwlock_unlock(&state->lock);
 }
 
 void state_newplayer(State *state, int sockfd) {
