@@ -23,4 +23,7 @@ State create_state();
 void state_newplayer(State *state, int sockfd);
 int state_deleteplayer(State *state, int sockfd);
 
+void player_translate(State *state, int index, float dx, float dy);
+void player_setvel(State *state, int index, float x, float y);
+
 #endif

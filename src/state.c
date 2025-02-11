@@ -22,10 +22,8 @@ void state_newplayer(State *state, int sockfd) {
     pthread_rwlock_wrlock(&state->lock);
     state->p_count += 1;
 
-    /**
-     * If p_count is bigger than capacity, allocate more capacity
-     * Specifically, 2^n
-     */
+    //  If p_count is bigger than capacity, allocate more capacity
+    // Specifically, 2^n
     if (state->p_count > state->p_cap) {
         unsigned int new_cap = 1;
         while (new_cap < state->p_count) {
@@ -69,4 +67,17 @@ int state_deleteplayer(State *state, int sockfd) {
 
     pthread_rwlock_unlock(&state->lock);
     return 0;
+}
+
+void player_translate(State *state, int index, float dx, float dy) {
+    pthread_rwlock_wrlock(&state->lock);
+    state->players[index].pos[0] += dx;
+    state->players[index].pos[1] += dy;
+    pthread_rwlock_unlock(&state->lock);
+}
+
+void player_setvel(State *state, int index, float x, float y) {
+    pthread_rwlock_wrlock(&state->lock);
+    *state->players[index].vel = *(float[2]){x, y};
+    pthread_rwlock_unlock(&state->lock);
 }

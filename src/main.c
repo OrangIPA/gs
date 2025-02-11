@@ -12,6 +12,7 @@
 
 #include "connection.h"
 #include "state.h"
+#include "update.h"
 
 #define PORT          4000
 #define LOOP_DELAY    1000000LL
@@ -24,7 +25,7 @@ int main() {
     State state = create_state();
 
     pthread_t loop_thread;
-    if (pthread_create(&loop_thread, NULL, game_loop, NULL) < 0) {
+    if (pthread_create(&loop_thread, NULL, game_loop, (void *)&state) < 0) {
         perror("gameloop");
         return(1);
     }
@@ -80,37 +81,28 @@ int main() {
     return(0);
 }
 
-void *game_loop(void *args) {
+void *game_loop(void *state) {
     struct timeval tv;
-
     gettimeofday(&tv, NULL);
     long long last_update = tv.tv_sec * 1000000LL + tv.tv_usec;
-    long long now         = last_update;
-    long long delta       = 0;
-
+    long long now;
+    
     while (1) {
         // MAIN LOOP START
-        // printf("main loop\n");
-        usleep(1500000);
-
-        // MAIN LOOP END
-
-
-        // time delay for consisten fps
         gettimeofday(&tv, NULL);
         now = tv.tv_sec * 1000000LL + tv.tv_usec;
-
-        long long i_delta = now - last_update;
-        long long i_left  = LOOP_DELAY - i_delta;
-
-        last_update = now;
-
-        // printf("sleeping for %d\n", i_left);
-        if (i_left > 0) {
-            usleep(i_left);
+        long long delta = now - last_update;  // This is your delta time in microseconds
+        
+        game_update((State *)state, delta);
+        
+        // MAIN LOOP END
+        
+        // Calculate sleep time for consistent frame rate
+        long long time_left = LOOP_DELAY - delta;
+        if (time_left > 0) {
+            usleep(time_left);
         }
-
-        gettimeofday(&tv, NULL);
-        last_update = tv.tv_sec * 1000000LL + tv.tv_usec;
+        
+        last_update = now;
     }
 }
