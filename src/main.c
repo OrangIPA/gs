@@ -65,13 +65,14 @@ int main() {
         }
 
         pthread_t thread_id;
-        int *     client_sock = malloc(sizeof(int));
-        *client_sock = newsockfd;
+        ConnectionArgs *param = malloc(sizeof(ConnectionArgs));
+        param->socket_desc = newsockfd;
+        param->state = &state;
 
-        if (pthread_create(&thread_id, NULL, handle_client, (void *)client_sock) < 0) {
+        if (pthread_create(&thread_id, NULL, handle_client, (void *)param) < 0) {
             perror("couldn't create thread");
             close(newsockfd);
-            free(client_sock);
+            free(param);
             continue;
         }
 

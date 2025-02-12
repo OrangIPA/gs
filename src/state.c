@@ -81,16 +81,3 @@ int state_deleteplayer(State *state, int sockfd) {
     pthread_rwlock_unlock(&state->lock);
     return 0;
 }
-
-void player_translate(State *state, int index, float dx, float dy) {
-    pthread_rwlock_wrlock(&state->lock);
-    state->players[index].pos[0] += dx;
-    state->players[index].pos[1] += dy;
-    pthread_rwlock_unlock(&state->lock);
-}
-
-void player_setvel(State *state, int index, float x, float y) {
-    pthread_rwlock_wrlock(&state->lock);
-    *state->players[index].vel = *(float[2]){x, y};
-    pthread_rwlock_unlock(&state->lock);
-}

@@ -6,16 +6,18 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-void *handle_client(void *socket_desc) {
-    int  client_sock  = *(int *)socket_desc;
+#include "connection.h"
+
+void *handle_client(void *conn_param) {
+    ConnectionArgs  args  = *(ConnectionArgs *)conn_param;
     char buffer[1024] = { 0 };
 
-    free(socket_desc);
+    free(conn_param);
     printf("new connection!\n");
 
     while (1) {
         uint8_t message_length;
-        int     valread = read(client_sock, &message_length, 1);
+        int     valread = read(args.socket_desc, &message_length, 1);
         if (valread == 0) {
             printf("disconnect!\n");
             break;
@@ -31,7 +33,7 @@ void *handle_client(void *socket_desc) {
         int err       = 0;
         while (1) {
             uint8_t buf;
-            int     valread = read(client_sock, &buf, 1);
+            int     valread = read(args.socket_desc, &buf, 1);
             if (valread == 0) {
                 continue;
             }
@@ -57,7 +59,7 @@ void *handle_client(void *socket_desc) {
             sprintf((reply + i * 2), "%02X", (int)message[i]);
         }
         reply[message_length * 2] = '\0';
-        ssize_t bytes_written = write(client_sock, reply, message_length * 2 + 1);
+        ssize_t bytes_written = write(args.socket_desc, reply, message_length * 2 + 1);
         if (bytes_written < 0) {
             perror("webserver (write)");
         }
@@ -67,8 +69,8 @@ void *handle_client(void *socket_desc) {
     }
 
     printf("close connection");
-    shutdown(client_sock, SHUT_RDWR);
-    close(client_sock);
+    shutdown(args.socket_desc, SHUT_RDWR);
+    close(args.socket_desc);
 
     return((void *)0);
 }
