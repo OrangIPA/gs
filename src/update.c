@@ -8,5 +8,5 @@ void game_update(State *state, long long delta) {
         *p->pos += *p->vel;
     }
 
-    print_state(state);
+    // print_state(state);
 }

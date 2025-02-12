@@ -17,7 +17,7 @@
 #define PORT          4000
 #define LOOP_DELAY    40000LL
 
-void *game_loop(void *args);
+void *game_loop(void *state);
 
 int main() {
     signal(SIGPIPE, SIG_IGN);
