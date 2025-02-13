@@ -10,7 +10,7 @@ State create_state() {
     state.p_count = 0;
     state.p_cap   = 1;
     state.players = malloc(sizeof(Player));
-    
+
     pthread_rwlockattr_t attr;
     pthread_rwlockattr_init(&attr);
     pthread_rwlockattr_setkind_np(&attr, PTHREAD_RWLOCK_PREFER_WRITER_NONRECURSIVE_NP);
@@ -47,9 +47,9 @@ void state_newplayer(State *state, int sockfd) {
         state->players = realloc(state->players, sizeof(Player) * state->p_cap);
     }
 
-    state->players[state->p_count].fd     = 0;
-    *state->players[state->p_count].pos = *(float[]){0, 0};
-    *state->players[state->p_count].vel = *(float[]){0, 0};
+    state->players[state->p_count].fd   = 0;
+    *state->players[state->p_count].pos = *(float[]){ 0, 0 };
+    *state->players[state->p_count].vel = *(float[]){ 0, 0 };
 
     pthread_rwlock_unlock(&state->lock);
 }
@@ -69,9 +69,9 @@ int state_deleteplayer(State *state, int sockfd) {
 
     for (int i = index; i < state->p_count; i++) {
         if (i == state->p_count - 1) {
-            state->players[state->p_count - 1].fd     = 0;
-            *state->players[state->p_count - 1].pos = *(float[2]){0, 0};
-            *state->players[state->p_count - 1].vel = *(float[2]){0, 0};
+            state->players[state->p_count - 1].fd   = 0;
+            *state->players[state->p_count - 1].pos = *(float[2]){ 0, 0 };
+            *state->players[state->p_count - 1].vel = *(float[2]){ 0, 0 };
             continue;
         }
 

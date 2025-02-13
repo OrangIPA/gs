@@ -27,13 +27,13 @@ int main() {
     pthread_t loop_thread;
     if (pthread_create(&loop_thread, NULL, game_loop, (void *)&state) < 0) {
         perror("gameloop");
-        return(1);
+        return 1;
     }
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         perror("websocket (socket)");
-        return(1);
+        return 1;
     }
 
     struct sockaddr_in host_addr;
@@ -48,12 +48,12 @@ int main() {
 
     if (bind(sockfd, (struct sockaddr *)&host_addr, host_addrlen) != 0) {
         perror("webserver (bind)");
-        return(1);
+        return 1;
     }
 
     if (listen(sockfd, SOMAXCONN) != 0) {
         perror("webserver (listen)");
-        return(1);
+        return 1;
     }
     printf("listening to port: %d\n", PORT);
 
@@ -64,10 +64,10 @@ int main() {
             continue;
         }
 
-        pthread_t thread_id;
+        pthread_t       thread_id;
         ConnectionArgs *param = malloc(sizeof(ConnectionArgs));
         param->socket_desc = newsockfd;
-        param->state = &state;
+        param->state       = &state;
 
         if (pthread_create(&thread_id, NULL, handle_client, (void *)param) < 0) {
             perror("couldn't create thread");
@@ -79,31 +79,32 @@ int main() {
         pthread_detach(thread_id);
     }
     printf("process exited!");
-    return(0);
+    return 0;
 }
 
 void *game_loop(void *state) {
     struct timeval tv;
+
     gettimeofday(&tv, NULL);
     long long last_update = tv.tv_sec * 1000000LL + tv.tv_usec;
     long long now;
-    
+
     while (1) {
         // MAIN LOOP START
         gettimeofday(&tv, NULL);
         now = tv.tv_sec * 1000000LL + tv.tv_usec;
         long long delta = now - last_update;  // This is your delta time in microseconds
-        
+
         game_update((State *)state, delta);
-        
+
         // MAIN LOOP END
-        
+
         // Calculate sleep time for consistent frame rate
         long long time_left = LOOP_DELAY - delta;
         if (time_left > 0) {
             usleep(time_left);
         }
-        
+
         last_update = now;
     }
 }

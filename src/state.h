@@ -3,10 +3,13 @@
 
 #include <pthread.h>
 
+typedef enum player_movement { NONE, LEFT, RIGHT } PMovement;
+
 typedef struct player {
-    int   fd;
-    float pos[2];
-    float vel[2];
+    int       fd;
+    float     pos[2];
+    float     vel[2];
+    PMovement movement;
 } Player;
 
 typedef struct state {

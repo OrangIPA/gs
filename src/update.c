@@ -3,6 +3,7 @@
 
 void game_update(State *state, long long delta) {
     int i;
+
     for (i = 0; i < state->p_count; i++) {
         Player *p = &state->players[i];
         *p->pos += *p->vel;
