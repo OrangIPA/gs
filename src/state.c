@@ -25,7 +25,7 @@ void print_state(State *state) {
     printf("player capacity: %d\n", state->p_cap);
     for (int i = 0; i < state->p_count; i++) {
         Player *p = &state->players[i];
-        printf("sockfd %d [pos: %f, %f] [vel: %f, %f]", p->fd, p->pos[0], p->pos[1], p->vel[0], p->vel[1]);
+        printf("sockfd %d [pos: %f, %f] [vel: %f, %f]\n", p->fd, p->pos[0], p->pos[1], p->vel[0], p->vel[1]);
     }
 
     pthread_rwlock_unlock(&state->lock);
@@ -47,16 +47,15 @@ void state_newplayer(State *state, int sockfd) {
         state->players = realloc(state->players, sizeof(Player) * state->p_cap);
     }
 
-    state->players[state->p_count].fd   = 0;
-    *state->players[state->p_count].pos = *(float[]){ 0, 0 };
-    *state->players[state->p_count].vel = *(float[]){ 0, 0 };
+    state->players[state->p_count - 1].fd   = sockfd;
+    *state->players[state->p_count - 1].pos = *(float[]){ 0, 0 };
+    *state->players[state->p_count - 1].vel = *(float[]){ 0, 0 };
 
     pthread_rwlock_unlock(&state->lock);
 }
 
 int state_deleteplayer(State *state, int sockfd) {
     pthread_rwlock_wrlock(&state->lock);
-    state->p_count -= 1;
     int index = -1;
     for (int i = 0; i < state->p_count; i++) {
         if (state->players[i].fd == sockfd) {
@@ -64,6 +63,7 @@ int state_deleteplayer(State *state, int sockfd) {
         }
     }
     if (index == -1) {
+        pthread_rwlock_unlock(&state->lock);
         return -1;
     }
 
@@ -78,6 +78,7 @@ int state_deleteplayer(State *state, int sockfd) {
         state->players[i] = state->players[i + 1];
     }
 
+    state->p_count -= 1;
     pthread_rwlock_unlock(&state->lock);
     return 0;
 }

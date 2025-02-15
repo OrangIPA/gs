@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 
 #include "connection.h"
+#include "state.h"
 
 #define CLIENT_DISCONNECT    -2
 
@@ -16,6 +17,8 @@ void *handle_client(void *conn_param) {
 
     free(conn_param);
     printf("new connection!\n");
+
+    state_newplayer(args.state, args.socket_desc);
 
     while (1) {
         size_t   message_length;
@@ -61,16 +64,17 @@ void *handle_client(void *conn_param) {
             sprintf((reply + i * 2), "%02X", (int)message[i]);
         }
         reply[message_length * 2] = '\0';
-        ssize_t bytes_written = write(args.socket_desc, reply, message_length * 2 + 1);
-        if (bytes_written < 0) {
-            perror("webserver (write)");
-        }
+        printf("%d: %s\n", args.socket_desc, reply);
 
         free(message);
         free(reply);
     }
 
-    printf("close connection");
+    printf("close connection\n");
+    int err = state_deleteplayer(args.state, args.socket_desc);
+    if (err != 0) {
+        printf("error occured while deleting player");
+    }
     shutdown(args.socket_desc, SHUT_RDWR);
     close(args.socket_desc);
 
