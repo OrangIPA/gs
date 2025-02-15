@@ -10,7 +10,7 @@ void game_update(State *state, long long delta) {
     pthread_rwlock_rdlock(&state->lock);
     printf("Connected clients: %d\n", state->p_count);
     pthread_rwlock_unlock(&state->lock);
-    
+
     int i;
     for (i = 0; i < state->p_count; i++) {
         pthread_rwlock_wrlock(&state->lock);
@@ -42,5 +42,4 @@ void game_update(State *state, long long delta) {
             print_state(state);
         }
     }
-
 }
