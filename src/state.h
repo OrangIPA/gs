@@ -1,6 +1,9 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include "common.h"
+
+#define _POSIX_C_SOURCE 200809L
 #include <pthread.h>
 
 typedef enum player_movement { NONE, LEFT, RIGHT } PMovement;

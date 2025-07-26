@@ -1,7 +1,8 @@
 #include "state.h"
 
-#include <stdlib.h>
+#define _POSIX_C_SOURCE 200809L
 #include <pthread.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 State create_state() {
