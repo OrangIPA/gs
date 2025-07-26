@@ -1,5 +1,5 @@
 #ifndef COMMON_H
-#define COMMIN_H
+#define COMMON_H
 
 #define ACCL_CONST         1
 #define DECL_CONST         1.5
