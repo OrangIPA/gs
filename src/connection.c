@@ -8,6 +8,7 @@
 
 #include "connection.h"
 #include "state.h"
+#include "net.h"
 
 #define CLIENT_DISCONNECT    -2
 
@@ -23,7 +24,7 @@ void *handle_client(void *conn_param) {
     while (1) {
         size_t   message_length;
         uint8_t *message;
-        int      status = get_message(args.socket_desc, &message, &message_length);
+        int      status = recv_message(args.socket_desc, &message_length, &message);
         if (status == CLIENT_DISCONNECT) {
             printf("Client Disconnect\n");
             break;
@@ -79,64 +80,4 @@ void *handle_client(void *conn_param) {
     close(args.socket_desc);
 
     return (void *)0;
-}
-
-/**
- * @brief  Retrive tcp messages by TLV protocol without type
- *
- * The protocol is, each message have length, and body.
- * The first bytes is the length and the rest is the body.
- *
- * since max value of 8 bit uint is 255 (0xFF), message length can't exceed 248 (0xF8)
- * bytes 248 (0xF8) and above is reserved for futureproofing (i'm thinking of doing it utf-8 style)
- *
- * ## example
- * ```
- * 0    1    2    3    4    5    6    7    8    9    A    ..   F
- * +----+----+----+----+----+----+----+----+----+----+----+----+----+
- * | 02 | 7F | 28 | 01 | 01 | A0 | 00 | 3F | 9A | 90 | 45 | .. | F4
- * +----+----+----+----+----+----+----+----+----+----+----+----+----+
- * Len  Dat  Dat  Len  Dat  Len  Dat  Dat  Dat  Dat  Dat  ..   Dat
- * ```
- * Above stream contains 3 messages:
- * `0x7F28` with length 0x02, `0x01` with length 0x01, and `0x003F9A9045..F4` with length 0xA0
- *
- */
-int get_message(int sockfd, uint8_t **out_message, size_t *len) {
-    int valread = read(sockfd, len, 1);
-
-    if (valread == 0) {
-        return CLIENT_DISCONNECT;
-    }
-    if (valread < 0) {
-        return -1;
-    }
-
-    *out_message = malloc(*len);
-
-    int totalread = 0;
-    int is_err    = 0;
-    while (1) {
-        uint8_t buf;
-        int     valread = read(sockfd, &buf, 1);
-        if (valread == 0) {
-            continue;
-        }
-        (*out_message)[totalread] = buf;
-
-        totalread += valread;
-        if (totalread > (int)*len) {
-            is_err = 1;
-            break;
-        }
-        if (totalread == (int)*len) {
-            break;
-        }
-    }
-
-    if (is_err) {
-        return -1;
-    }
-
-    return -1;
 }
