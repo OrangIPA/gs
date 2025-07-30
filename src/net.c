@@ -10,7 +10,7 @@
 int recv_message(int fd, size_t *len, uint8_t **out_message) {
     int valread = read(fd, len, 1);
 
-    if (valread > 0xFB) {
+    if (*len > 0xFB) {
         PANIC("message length greater than 251 not implemented");
     }
 
