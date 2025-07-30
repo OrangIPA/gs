@@ -5,6 +5,13 @@
 
 #define CLIENT_DISCONNECT -2
 
+/**
+ * @brief  Send tcp messages by TLV protocol without type. Refer to recv_message for the protocol
+ * 
+ * @param fd socket file descriptor for the tcp connection
+ * @param len the length of the message
+ * @param message pointer to the message
+ */
 int send_message(int fd, size_t len, uint8_t *message);
 
 /**
