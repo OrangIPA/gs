@@ -9,10 +9,11 @@
 typedef enum player_movement { NONE, LEFT, RIGHT } PMovement;
 
 typedef struct player {
-    int       fd;
-    float     pos[2];
-    float     vel[2];
-    PMovement movement;
+    int             fd;
+    pthread_mutex_t fd_lock;
+    float           pos[2];
+    float           vel[2];
+    PMovement       movement;
 } Player;
 
 typedef struct state {

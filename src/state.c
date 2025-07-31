@@ -49,10 +49,18 @@ void state_newplayer(State *state, int sockfd) {
     }
 
     state->players[state->p_count - 1].fd   = sockfd;
+    pthread_mutex_init(&state->players[state->p_count - 1].fd_lock, NULL);
     *state->players[state->p_count - 1].pos = *(float[]){ 0, 0 };
     *state->players[state->p_count - 1].vel = *(float[]){ 0, 0 };
 
     pthread_rwlock_unlock(&state->lock);
+}
+
+void player_clear(Player *p) {
+    p->fd = 0;
+    pthread_mutex_destroy(&p->fd_lock);
+    *p->pos = *(float[2]){0, 0};
+    *p->vel = *(float[2]){0, 0};
 }
 
 int state_deleteplayer(State *state, int sockfd) {
@@ -70,9 +78,7 @@ int state_deleteplayer(State *state, int sockfd) {
 
     for (int i = index; i < state->p_count; i++) {
         if (i == state->p_count - 1) {
-            state->players[state->p_count - 1].fd   = 0;
-            *state->players[state->p_count - 1].pos = *(float[2]){ 0, 0 };
-            *state->players[state->p_count - 1].vel = *(float[2]){ 0, 0 };
+            player_clear(&state->players[state->p_count - 1]);
             continue;
         }
 
